@@ -1,0 +1,19 @@
+{
+    "name": "winfamy/guzzleblox",
+    "description": "A simple PHP ROBLOX client for most site interactions",
+    "type": "library",
+    "require": {
+        "guzzlehttp/guzzle": "^6.2"
+    },
+    "authors": [
+        {
+            "name": "Winfamy",
+            "email": "infamy@unyx.io"
+        }
+    ],
+    "autoload": {
+        "psr-4" : {
+            "GuzzleBlox\\" : "src/"
+        }
+    }
+}
