@@ -14,6 +14,7 @@ namespace GuzzleBlox;
 
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleBlox\Exceptions\RobloxException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ConnectException;
 
@@ -38,15 +39,37 @@ class WebApi {
 		catch(Exception $e) 
 		{
 			if($e instanceof RequestException) {
-
+				throw new RobloxException('Connection to ROBLOX failed.');
 			}
 
 			if($e instanceof ConnectException) {
-
+				throw new RobloxException('Connection to ROBLOX failed.');
 			}
 
 			throw $e;
 		}
+	}
+
+	public function fetchAssetThumbnail($asset_id) {
+		try {
+			$resp = $this->http('GET', "https://www.roblox.com/thumbnail/asset?assetId=$asset_id&thumbnailFormatId=254&width=420&height=420");
+			$html = $resp->getBody();
+			preg_match("/class='' src='(.*)' \/>/", $html, $matches);
+    		return $matches[1];
+		}
+
+		catch(Exception $e) 
+		{
+			if($e instanceof RequestException) {
+				throw new RobloxException('Connection to ROBLOX failed.');
+			}
+
+			if($e instanceof ConnectException) {
+				throw new RobloxException('Connection to ROBLOX failed.');
+			}
+
+			throw $e;
+		} 
 	}
 
 }

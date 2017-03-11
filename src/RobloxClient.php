@@ -15,8 +15,10 @@ use GuzzleHttp\Client as Http;
 use Exceptions\RobloxException;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Cookie\SetCookie;
+use GuzzleHttp\RedirectMiddleware;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
+
 
 class RobloxClient {
 
@@ -132,11 +134,44 @@ class RobloxClient {
 
 	// Account functions
 
+	public function login() {
+		$resp = $this->client->request('POST', 'https://www.roblox.com/newlogin', [
+			'form_params' => [
+			'Username' => $this->username,
+			'Password' => $this->password,
+			'ReturnUrl' => ''
+		],
+			'allow_redirects' => [
+				'track_redirects' => true
+			],
+			'cookies' => $this->jar
+		]);
+
+		$history = $resp->getHeader(RedirectMiddleware::HISTORY_HEADER);
+		if(isset($history) && isset($history[0])) {
+			if($history[0] == "https://www.roblox.com/home?nl=true" || $history[0] == "https://www.roblox.com/home") {
+				if(isset($this->jar->toArray()[2]) && $this->jar->toArray()[2]['Name'] == ".ROBLOSECURITY") {
+					$this->cookie = $this->jar->toArray()[2]['Value'];
+					$this->token = $this->parseTokenFromHtml($resp->getBody());
+					echo $this->token;
+
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	public function fetchSettings() {}
 
 	public function fetchBcExpiry() {}
 
+	// Helper functions
 
+	public function parseTokenFromHtml($html) {
+		return (preg_match("/\.setToken\('(.*?)'\);/", $html, $matches) === 1) ? $matches[1] : false;
+	}
 
 
 }
